@@ -1,0 +1,14 @@
+{
+  "/posts": "getting all the post",
+  "/users": "get all users",
+  "/": "information about router",
+  "/signup": "sign up new users",
+  "/signin": "sign inusers",
+  "/signout": "logout",
+
+  "/user/:userId": "get update delete user",
+
+  "/post/new/:userId": "create new post",
+  "/post/by/:userId": "get posts by user",
+  "/post/:postId": "update delete post"
+}

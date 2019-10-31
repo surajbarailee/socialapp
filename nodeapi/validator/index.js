@@ -4,8 +4,8 @@ exports.createPostValidator = (req, res, next) => {
     min: 5,
     max: 100
   });
-  req.check("Body", "Write a Body").notEmpty();
-  req.check("Body", "Body must be between 5 to 1000 characters").isLength({
+  req.check("body", "Write a Body").notEmpty();
+  req.check("body", "Body must be between 5 to 1000 characters").isLength({
     min: 5,
     max: 1000
   });

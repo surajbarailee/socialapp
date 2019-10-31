@@ -5,6 +5,8 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
 var cookieParser = require("cookie-parser");
+const fs = require("fs");
+const cors = require("cors");
 
 const expressvalidation = require("express-validator");
 dotenv.config();
@@ -24,11 +26,35 @@ mongoose.connection.on("error", err => {
 
 const postRoutes = require("./routes/post");
 const authRoutes = require("./routes/auth");
+const userRoutes = require("./routes/user");
 
+// Details
+
+app.get("/", (req, res) => {
+  fs.readFile("Details/Routes.json", (err, data) => {
+    if (err) {
+      res.status(400).json({
+        error: err
+      });
+    }
+    const docs = JSON.parse(data);
+    res.json(docs);
+  });
+});
+
+app.use(cors);
 app.use(morgan("dev"));
 app.use(bodyParser.json());
 app.use(expressvalidation());
 app.use("/", postRoutes);
 app.use("/", authRoutes);
+app.use("/", userRoutes);
 app.use(cookieParser()); //cookieparser.json
+app.use(function(err, req, res, next) {
+  if (err.name === "UnauthorizedError") {
+    res.status(401).json({
+      error: "unauthorized error"
+    });
+  }
+});
 app.listen(process.env.PORT || 8000);

@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
-require("dotenv").config;
+const expressJWT = require("express-jwt");
+require("dotenv").config();
 //user paila nai registered xa ki xaina herne
 
 exports.signup = async (req, res) => {
@@ -49,3 +50,9 @@ exports.signout = (req, res) => {
   res.clearCookie("tokencookie");
   return res.status(200).json({ message: "Signout Success!" });
 };
+exports.requireSignin = expressJWT({
+  //if token valid then expressJWT appends the verified users id
+  //in an auth key to the request object
+  secret: process.env.JWT_SECRETKEY,
+  userProperty: "auth"
+});
