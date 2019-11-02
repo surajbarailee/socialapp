@@ -15,15 +15,15 @@ const Menu = ({ history }) => (
         </Link>
       </li>
 
-      {/* <li className="nav-item">
+      <li className="nav-item">
         <Link
           className="nav-link"
-          style={isActive(history, "/signin")}
-          to="/signin"
+          style={isActive(history, "/users")}
+          to="/users"
         >
-          SignIn
+          Users
         </Link>
-      </li> */}
+      </li>
 
       {!isAuthenticated() && (
         <>
@@ -59,7 +59,13 @@ const Menu = ({ history }) => (
             </Link>
           </li>
           <li className="nav-item">
-            <Link className="nav-link">{isAuthenticated().user.name}</Link>
+            <Link
+              className="nav-link"
+              to={`/user/${isAuthenticated().user._id}`}
+              style={isActive(history, `/user/${isAuthenticated().user._id}`)}
+            >
+              {`${isAuthenticated().user.name}'s profile`}
+            </Link>
           </li>
         </>
       )}

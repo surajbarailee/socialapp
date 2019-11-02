@@ -27,9 +27,10 @@ export default class Signin extends Component {
       email: email,
       password: password
     };
-    // console.log(user)
+
     signin(user).then(data => {
-      //if error data contaiins error else the data has json web token
+      console.log(data);
+      //if error data contains error else the data has json web token
       if (data.error) {
         this.setState({ error: data.error, loading: false });
       } else {
