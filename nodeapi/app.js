@@ -42,7 +42,7 @@ app.get("/", (req, res) => {
   });
 });
 
-app.use(cors);
+app.use(cors());
 app.use(morgan("dev"));
 app.use(bodyParser.json());
 app.use(expressvalidation());
