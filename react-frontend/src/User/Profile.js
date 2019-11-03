@@ -52,6 +52,7 @@ export default class Profile extends Component {
               alt={user.name}
               style={{ height: "200px", width: "auto" }}
               className="img-thunbnail"
+              onError={i => (i.target.src = `${DefaultProfile}`)}
             />
           </div>
           <div className="col-md-6">

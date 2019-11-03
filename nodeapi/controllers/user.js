@@ -7,16 +7,16 @@ exports.userById = (req, res, next, id) => {
   User.findById(id)
     //populatefollowers and following users array space
     .populate("following", "_id name")
-    .populate("followers", "_id name");
-  exec((err, user) => {
-    if (err || !user) {
-      return res.status(400).json({
-        error: "User not found"
-      });
-    }
-    req.profile = user; //adds profile object in req with user details
-    next();
-  });
+    .populate("followers", "_id name")
+    .exec((err, user) => {
+      if (err || !user) {
+        return res.status(400).json({
+          error: "User not found"
+        });
+      }
+      req.profile = user; //adds profile object in req with user details
+      next();
+    });
 };
 
 exports.hasAuthorization = (req, res, next) => {
