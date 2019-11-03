@@ -4,7 +4,11 @@ const formidable = require("formidable");
 const fs = require("fs");
 
 exports.userById = (req, res, next, id) => {
-  User.findById(id).exec((err, user) => {
+  User.findById(id)
+    //populatefollowers and following users array space
+    .populate("following", "_id name")
+    .populate("followers", "_id name");
+  exec((err, user) => {
     if (err || !user) {
       return res.status(400).json({
         error: "User not found"
@@ -106,4 +110,72 @@ exports.userPhoto = (req, res, next) => {
     return res.send(req.profile.photo.data);
   }
   next();
+};
+
+//follow unfollow part
+
+exports.addFollowing = (req, res, next) => {
+  User.findByIdAndUpdate(
+    req.body.userId,
+    { $push: { following: req.body.followId } },
+    (err, result) => {
+      if (err) {
+        return res.status(400).json({ error: err });
+      }
+      next();
+    }
+  );
+};
+
+exports.addFollower = (req, res) => {
+  User.findByIdAndUpdate(
+    req.body.followId,
+    { $push: { followers: req.body.followId } },
+    { new: true } //mongo will return the old data not the updated data
+  )
+    .populate("following", "_id name")
+    .populate("followers", "_id name")
+    .exec((err, result) => {
+      if (err) {
+        return res.status(400).json({
+          error: err
+        });
+      }
+      result.hashed_password = undefined;
+      result.salt = undefined;
+      res.json(result);
+    });
+};
+
+exports.removeFollowing = (req, res, next) => {
+  User.findByIdAndUpdate(
+    req.body.userId,
+    { $pull: { following: req.body.unfollowId } },
+    (err, result) => {
+      if (err) {
+        return res.status(400).json({ error: err });
+      }
+      next();
+    }
+  );
+};
+
+exports.removeFollower = (req, res) => {
+  User.findByIdAndUpdate(
+    req.body.unfollowId,
+    { $pull: { followers: req.body.unfollowId } },
+    { new: true } //mongo will return the old data not the updated data
+  )
+    .populate("following", "_id name")
+    .populate("followers", "_id name")
+    .exec((err, result) => {
+      if (err) {
+        return res.status(400).json({
+          error: err
+        });
+      }
+      result.hashed_password = undefined;
+      result.salt = undefined;
+      res.json(result);
+    });
 };
