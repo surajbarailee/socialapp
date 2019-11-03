@@ -1,5 +1,7 @@
 const User = require("../models/user");
 const _ = require("lodash");
+const formidable = require("formidable");
+const fs = require("fs");
 
 exports.userById = (req, res, next, id) => {
   User.findById(id).exec((err, user) => {
@@ -41,19 +43,47 @@ exports.getUser = (req, res) => {
   return res.json(req.profile);
 };
 
+// exports.updateUser = (req, res, next) => {
+//   let user = req.profile;
+//   user = _.extend(user, req.body); //mutates the source object
+//   user.updated = Date.now();
+//   user.save(err => {
+//     if (err) {
+//       return res.status(400).json({
+//         error: "You are not authorized or some error has occured"
+//       });
+//     }
+//     user.hashed_password = undefined;
+//     user.salt = undefined;
+//     res.json({ user });
+//   });
+// };
 exports.updateUser = (req, res, next) => {
-  let user = req.profile;
-  user = _.extend(user, req.body); //mutates the source object
-  user.updated = Date.now();
-  user.save(err => {
+  let form = new formidable.IncomingForm();
+  form.keepExtensions = true;
+  form.parse(req, (err, fields, files) => {
     if (err) {
       return res.status(400).json({
-        error: "You are not authorized or some error has occured"
+        error: "Photo could not be uploaded"
       });
     }
-    user.hashed_password = undefined;
-    user.salt = undefined;
-    res.json({ user });
+    let user = req.profile;
+    user = _.extend(user, fields);
+    user.updates = Date.now();
+    if (files.photo) {
+      user.photo.data = fs.readFileSync(files.photo.path);
+      user.photo.contentType = files.photo.type;
+    }
+    user.save((err, result) => {
+      if (err) {
+        return res.status(400).json({
+          error: err
+        });
+      }
+      user.hashed_password = undefined;
+      user.salt = undefined;
+      res.json(user);
+    });
   });
 };
 
@@ -68,4 +98,12 @@ exports.deleteUser = (req, res, next) => {
 
     res.json({ message: "Account is deleted !!!!!!!!!" });
   });
+};
+
+exports.userPhoto = (req, res, next) => {
+  if (req.profile.photo.data) {
+    res.set(("Content-Type", req.profile.photo.contentType));
+    return res.send(req.profile.photo.data);
+  }
+  next();
 };

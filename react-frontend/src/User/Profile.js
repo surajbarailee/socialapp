@@ -3,7 +3,7 @@ import { isAuthenticated } from "../auth/index";
 import { Redirect, Link } from "react-router-dom";
 import { read } from "./apiUser";
 import DeleteUser from "./DeleteUser";
-import defaultprofile from "../images/avatar.png";
+import DefaultProfile from "../images/avatar.png";
 
 export default class Profile extends Component {
   constructor() {
@@ -37,16 +37,21 @@ export default class Profile extends Component {
   render() {
     const { redirectToSignin, user } = this.state;
     if (redirectToSignin) return <Redirect to="/signin" />;
+    const photoUrl = user._id
+      ? `${process.env.REACT_APP_API_URL}/user/photo/${
+          user._id
+        }?${new Date().getTime()}`
+      : DefaultProfile;
     return (
       <div className="container">
         <h2 className="mt-5 mb-5">Profile</h2>
         <div className="row">
           <div className="col-md-6">
             <img
-              className="card-img-top"
-              src={defaultprofile}
+              src={photoUrl}
               alt={user.name}
-              style={{ width: "100%", height: "15vw", objectFit: "cover" }}
+              style={{ height: "200px", width: "auto" }}
+              className="img-thunbnail"
             />
           </div>
           <div className="col-md-6">
@@ -66,6 +71,13 @@ export default class Profile extends Component {
                 <DeleteUser userId={user._id} />
               </div>
             )}
+          </div>
+        </div>
+        <div className="row">
+          <div className="col md-12 mt-8">
+            <hr />
+            <p className="lead">{user.about}</p>
+            <hr />
           </div>
         </div>
       </div>
