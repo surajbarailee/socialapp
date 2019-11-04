@@ -130,7 +130,7 @@ exports.addFollowing = (req, res, next) => {
 exports.addFollower = (req, res) => {
   User.findByIdAndUpdate(
     req.body.followId,
-    { $push: { followers: req.body.followId } },
+    { $push: { followers: req.body.userId } },
     { new: true } //mongo will return the old data not the updated data
   )
     .populate("following", "_id name")
@@ -163,7 +163,7 @@ exports.removeFollowing = (req, res, next) => {
 exports.removeFollower = (req, res) => {
   User.findByIdAndUpdate(
     req.body.unfollowId,
-    { $pull: { followers: req.body.unfollowId } },
+    { $pull: { followers: req.body.userId } },
     { new: true } //mongo will return the old data not the updated data
   )
     .populate("following", "_id name")
@@ -178,4 +178,19 @@ exports.removeFollower = (req, res) => {
       result.salt = undefined;
       res.json(result);
     });
+};
+
+exports.findPeople = (req, res) => {
+  let following = req.profile.following;
+  console.log("finding people");
+  following.push(req.profile._id);
+  User.find({ _id: { $nin: following } }, (err, users) => {
+    if (err) {
+      return res.status(400).json({
+        error: err
+      });
+    }
+    res.json(users);
+    console.log(users, "suggested followers");
+  }).select("name");
 };

@@ -81,7 +81,6 @@ export default class EditProfile extends Component {
   clickSubmit = event => {
     event.preventDefault();
     this.setState({ loading: true });
-
     if (this.isValid()) {
       // const { name, email, password } = this.state;
       const userId = this.props.match.params.userId;
@@ -191,11 +190,13 @@ export default class EditProfile extends Component {
         ) : (
           ""
         )}
+
         <img
           src={photoUrl}
           alt={name}
           style={{ height: "200px", width: "auto" }}
           className="img-thunbnail"
+          onError={i => (i.target.src = `${DefaultProfile}`)}
         />
         {this.signupForm(name, email, about, password)}
       </div>

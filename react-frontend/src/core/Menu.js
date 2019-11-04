@@ -52,10 +52,10 @@ const Menu = ({ history }) => (
           <li className="nav-item">
             <Link
               className="nav-link"
-              style={isActive(history, "/signout")}
-              onClick={() => signout(() => history.push("/"))}
+              to={`/findpeople`}
+              style={isActive(history, `/findpeople`)}
             >
-              Signout
+              Find people
             </Link>
           </li>
           <li className="nav-item">
@@ -65,6 +65,15 @@ const Menu = ({ history }) => (
               style={isActive(history, `/user/${isAuthenticated().user._id}`)}
             >
               {`${isAuthenticated().user.name}'s profile`}
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link
+              className="nav-link"
+              style={isActive(history, "/signout")}
+              onClick={() => signout(() => history.push("/"))}
+            >
+              Signout
             </Link>
           </li>
         </>
