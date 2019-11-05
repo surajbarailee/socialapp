@@ -20,14 +20,16 @@ exports.postById = (req, res, next, id) => {
 exports.getPosts = (req, res) => {
   const posts = Post.find()
     .populate("postedBy", "_id name")
-    .select("_id title body")
+    .select("_id title body created")
+    .sort({ created: -1 })
     .then(posts => {
-      res.json({ posts });
+      res.json(posts);
       console.log(posts);
     })
     .catch(err => console.log(err));
 };
 exports.createPost = (req, res, next) => {
+  console.log("Create Post method fired");
   let form = new formidable.IncomingForm();
   form.keepExtensions = true;
   form.parse(req, (err, fields, files) => {
@@ -41,11 +43,13 @@ exports.createPost = (req, res, next) => {
     req.profile.hashed_password = undefined;
     req.profile.salt = undefined;
     post.postedBy = req.profile;
-    if (files.picture) {
-      post.picture.data = fs.readFileSync(file.picture.path);
-      post.picture.contentType = files.photo.type;
+    if (files.photo) {
+      console.log(files.photo.path, "files photo");
+      post.photo.data = fs.readFileSync(files.photo.path);
+      post.photo.contentType = files.photo.type;
     }
     post.save((err, result) => {
+      console.log("saving");
       if (err) {
         return res.status(400).json({
           error: err
@@ -53,7 +57,6 @@ exports.createPost = (req, res, next) => {
       }
       res.json(result);
     });
-    next();
   });
 };
 
@@ -65,7 +68,7 @@ exports.postsByUser = (req, res) => {
       if (err) {
         return res.status(400).json({ error: err });
       }
-      res.json({ posts });
+      res.json(posts);
     });
 };
 exports.isPoster = (req, res, next) => {
@@ -104,4 +107,13 @@ exports.updatePost = (req, res, next) => {
     }
     res.json(post);
   });
+};
+
+exports.photo = (req, res, next) => {
+  res.set("Content-Type", req.post.photo.contentType);
+  return res.send(req.post.photo.data);
+};
+
+exports.singlePost = (req, res) => {
+  return res.json(req.post);
 };

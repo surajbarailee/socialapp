@@ -6,7 +6,9 @@ const {
   postById,
   isPoster,
   deletePost,
-  updatePost
+  updatePost,
+  photo,
+  singlePost
 } = require("../controllers/post");
 const { createPostValidator } = require("../validator/index");
 const { requireSignin } = require("../controllers/auth");
@@ -21,6 +23,8 @@ router.post(
   createPostValidator
 );
 router.get("/posts/by/:userId", requireSignin, postsByUser);
+router.get("/post/photo/:postId", photo);
+router.get("/post/:postId", singlePost);
 
 router.delete("/post/:postId", requireSignin, isPoster, deletePost);
 router.put("/post/:postId", requireSignin, isPoster, updatePost);
