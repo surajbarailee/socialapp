@@ -3,6 +3,7 @@ import { singlePost, remove, like, unlike } from "./apiPost";
 import DefaultPost from "../images/default.jpg";
 import { Link, Redirect } from "react-router-dom";
 import { isAuthenticated } from "../auth/index";
+import Comment from "./Comment";
 
 export default class SinglePost extends Component {
   state = {
@@ -10,7 +11,8 @@ export default class SinglePost extends Component {
     redirect: false,
     redirectSignin: false,
     like: false,
-    likes: 0
+    likes: 0,
+    comments: []
   };
   checkLike = likes => {
     if (!isAuthenticated()) {
@@ -30,10 +32,15 @@ export default class SinglePost extends Component {
         this.setState({
           post: data,
           likes: data.likes.length,
-          like: this.checkLike(data.likes)
+          like: this.checkLike(data.likes),
+          comments: data.comments
         });
       }
+      console.log(data, "Component did Mount");
     });
+  };
+  updateComments = comments => {
+    this.setState({ comments });
   };
   deletePost = () => {
     const postId = this.props.match.params.postId;
@@ -46,6 +53,7 @@ export default class SinglePost extends Component {
       }
     });
   };
+
   deletionConfirmed = () => {
     let ok = window.confirm("We hope you are Sure to delete account..!!");
     if (ok) {
@@ -90,7 +98,7 @@ export default class SinglePost extends Component {
           <h3>
             <i
               onClick={this.likeToggle}
-              class="fas fa-thumbs-up text-success"
+              className="fas fa-thumbs-up text-success"
             ></i>{" "}
             {likes} like
           </h3>
@@ -134,7 +142,7 @@ export default class SinglePost extends Component {
     );
   };
   render() {
-    const { post, redirect, redirectSignin } = this.state;
+    const { post, redirect, redirectSignin, comments } = this.state;
     if (redirect) {
       return <Redirect to={"/"} />;
     }
@@ -151,6 +159,12 @@ export default class SinglePost extends Component {
         ) : (
           this.renderPost(post)
         )}
+
+        <Comment
+          postId={post._id}
+          comments={comments.reverse()}
+          updateComments={this.updateComments}
+        />
       </div>
     );
   }
