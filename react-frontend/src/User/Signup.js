@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { signup } from "../auth/index";
 import { Link } from "react-router-dom";
+import SocialLogin from "./SocialLogin";
 
 export default class Signup extends Component {
   constructor() {
@@ -10,9 +11,41 @@ export default class Signup extends Component {
       email: "",
       password: "",
       error: "",
-      open: false
+      open: false,
+      recaptcha: false
     };
   }
+  recaptchaHandler = e => {
+    this.setState({ error: "" });
+    let userDay = e.target.value.toLowerCase();
+    let dayCount;
+
+    if (userDay === "sunday") {
+      dayCount = 0;
+    } else if (userDay === "monday") {
+      dayCount = 1;
+    } else if (userDay === "tuesday") {
+      dayCount = 2;
+    } else if (userDay === "wednesday") {
+      dayCount = 3;
+    } else if (userDay === "thursday") {
+      dayCount = 4;
+    } else if (userDay === "friday") {
+      dayCount = 5;
+    } else if (userDay === "saturday") {
+      dayCount = 6;
+    }
+
+    if (dayCount === new Date().getDay()) {
+      this.setState({ recaptcha: true });
+      return true;
+    } else {
+      this.setState({
+        recaptcha: false
+      });
+      return false;
+    }
+  };
   handleChange = name => event => {
     this.setState({ error: "" });
     this.setState({
@@ -28,19 +61,25 @@ export default class Signup extends Component {
       password: password
     };
     // console.log(user)
-    signup(user).then(data => {
-      if (data.error) {
-        this.setState({ error: data.error });
-      } else {
-        this.setState({
-          error: "",
-          name: "",
-          email: "",
-          password: "",
-          open: true
-        });
-      }
-    });
+    if (this.state.recaptcha) {
+      signup(user).then(data => {
+        if (data.error) {
+          this.setState({ error: data.error });
+        } else {
+          this.setState({
+            error: "",
+            name: "",
+            email: "",
+            password: "",
+            open: true
+          });
+        }
+      });
+    } else {
+      this.setState({
+        error: "What day is today? Please write a correct answer!"
+      });
+    }
   };
 
   signupForm = (name, email, password) => (
@@ -71,6 +110,19 @@ export default class Signup extends Component {
           className="form-control"
           value={password}
         />
+        <div className="form-group">
+          <label className="text-muted">
+            {this.state.recaptcha
+              ? "Thanks. You got it!"
+              : "What day is today?"}
+          </label>
+
+          <input
+            onChange={this.recaptchaHandler}
+            type="text"
+            className="form-control"
+          />
+        </div>
       </div>
       <button onClick={this.clickSubmit} className="btn btn-raised ">
         Submit
@@ -81,6 +133,10 @@ export default class Signup extends Component {
     return (
       <div className="container">
         <h2 className="mt-4 mb-4">Signup</h2>
+        <hr />
+        <SocialLogin />
+
+        <hr />
         <div
           className="alert alert-danger"
           style={{ display: this.state.error ? "" : "none" }}

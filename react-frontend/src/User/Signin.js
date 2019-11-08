@@ -12,7 +12,8 @@ export default class Signin extends Component {
       password: "",
       error: "",
       redirectToReferer: false,
-      loading: false
+      loading: false,
+      recaptcha: false
     };
   }
   handleChange = name => event => {
@@ -29,20 +30,58 @@ export default class Signin extends Component {
       email: email,
       password: password
     };
+    if (this.state.recaptcha) {
+      signin(user).then(data => {
+        console.log(data);
+        //if error data contains error else the data has json web token
+        if (data.error) {
+          this.setState({ error: data.error, loading: false });
+        } else {
+          //authenticate user
+          //redirect
+          authenticate(data, () => {
+            this.setState({ redirectToReferer: true });
+          });
+        }
+      });
+    } else {
+      this.setState({
+        loading: false,
+        error:
+          "What day is today? Please write a correct answer in a format (sunday or monday or tuesday etc)!"
+      });
+    }
+  };
+  recaptchaHandler = e => {
+    this.setState({ error: "" });
+    let userDay = e.target.value.toLowerCase();
+    let dayCount;
 
-    signin(user).then(data => {
-      console.log(data);
-      //if error data contains error else the data has json web token
-      if (data.error) {
-        this.setState({ error: data.error, loading: false });
-      } else {
-        //authenticate user
-        //redirect
-        authenticate(data, () => {
-          this.setState({ redirectToReferer: true });
-        });
-      }
-    });
+    if (userDay === "sunday") {
+      dayCount = 0;
+    } else if (userDay === "monday") {
+      dayCount = 1;
+    } else if (userDay === "tuesday") {
+      dayCount = 2;
+    } else if (userDay === "wednesday") {
+      dayCount = 3;
+    } else if (userDay === "thursday") {
+      dayCount = 4;
+    } else if (userDay === "friday") {
+      dayCount = 5;
+    } else if (userDay === "saturday") {
+      dayCount = 6;
+    }
+
+    if (dayCount === new Date().getDay()) {
+      this.setState({ recaptcha: true });
+      return true;
+    } else {
+      this.setState({
+        recaptcha: false
+      });
+      return false;
+    }
   };
 
   signinForm = (email, password) => (
@@ -63,6 +102,17 @@ export default class Signin extends Component {
           type="password"
           className="form-control"
           value={password}
+        />
+      </div>
+      <div className="form-group">
+        <label className="text-muted">
+          {this.state.recaptcha ? "Thanks. You got it!" : "What day is today?"}
+        </label>
+
+        <input
+          onChange={this.recaptchaHandler}
+          type="text"
+          className="form-control"
         />
       </div>
       <button onClick={this.clickSubmit} className="btn btn-raised ">
@@ -91,7 +141,11 @@ export default class Signin extends Component {
           ""
         )}
 
-        {this.signinForm(this.state.email, this.state.password)}
+        {this.signinForm(
+          this.state.email,
+          this.state.password,
+          this.state.recaptcha
+        )}
 
         <p>
           <Link to="/forgot-password" className="text-danger">
