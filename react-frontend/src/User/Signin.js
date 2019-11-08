@@ -1,5 +1,7 @@
 import React, { Component } from "react";
-import { Redirect } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
+import SocialLogin from "./SocialLogin";
+
 import { signin, authenticate } from "../auth/index";
 
 export default class Signin extends Component {
@@ -64,7 +66,7 @@ export default class Signin extends Component {
         />
       </div>
       <button onClick={this.clickSubmit} className="btn btn-raised ">
-        Submit
+        Login
       </button>
     </form>
   );
@@ -90,6 +92,15 @@ export default class Signin extends Component {
         )}
 
         {this.signinForm(this.state.email, this.state.password)}
+
+        <p>
+          <Link to="/forgot-password" className="text-danger">
+            {" "}
+            Forgot Password
+          </Link>
+          <hr />
+          <SocialLogin />
+        </p>
       </div>
     );
   }
